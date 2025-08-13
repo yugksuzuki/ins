@@ -1,0 +1,10 @@
+cd C:\Users\roman\Pictures\gui\scr\inspmatch_backend_melhorado
+
+@"
+node_modules/
+.env
+.vercel/
+npm-debug.log*
+yarn-error.log*
+.DS_Store
+"@ | Out-File -Encoding UTF8 .gitignore

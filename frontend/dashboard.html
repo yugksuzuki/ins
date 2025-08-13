@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dashboard de Comparação</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      background-color: #f9f9f9;
+      color: #051d28;
+    }
+    .btn-primary {
+      background-color: #022c3e;
+    }
+    .btn-primary:hover {
+      background-color: #051d28;
+    }
+    .btn-secondary {
+      background-color: #000000;
+    }
+    .btn-secondary:hover {
+      background-color: #022c3e;
+    }
+  </style>
+</head>
+<body class="flex items-center justify-center min-h-screen">
+  <div class="bg-white p-8 rounded shadow-md w-full max-w-md text-center">
+    <h1 class="text-2xl font-bold mb-4">Dashboard de Comparação</h1>
+    
+    <input 
+      type="file" 
+      id="imageInput" 
+      accept="image/*" 
+      class="mb-4 w-full border border-[#022c3e] p-2 rounded text-[#051d28]" 
+    />
+    
+    <button 
+      onclick="handleCompare()" 
+      class="btn-primary text-white px-4 py-2 rounded transition"
+    >
+      Comparar
+    </button>
+    
+    <div id="result" class="mt-4 text-red-600 font-semibold"></div>
+    
+    <a 
+      href="index.html" 
+      class="btn-secondary block mt-6 text-white px-4 py-2 rounded text-center transition"
+    >
+       Voltar
+    </a>
+  </div>
+
+  <script>
+    async function handleCompare() {
+      const fileInput = document.getElementById("imageInput");
+      const resultDiv = document.getElementById("result");
+      resultDiv.innerText = "";
+
+      if (!fileInput.files.length) {
+        resultDiv.innerText = "Selecione uma imagem.";
+        return;
+      }
+
+      const file = fileInput.files[0];
+      const reader = new FileReader();
+
+      reader.onloadend = async () => {
+        const base64Image = reader.result;
+
+        try {
+          const response = await fetch("http://localhost:3001/compare", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ image: base64Image })
+          });
+
+          const data = await response.json();
+
+          if (data.matches) {
+            localStorage.setItem("comparisonResults", JSON.stringify(data.matches));
+            window.location.href = "result.html";
+          } else {
+            resultDiv.innerText = "❌ Nenhum resultado retornado.";
+          }
+        } catch (err) {
+          console.error("Erro ao comparar:", err);
+          resultDiv.innerText = "❌ Erro ao comparar.";
+        }
+      };
+
+      reader.readAsDataURL(file);
+    }
+  </script>
+</body>
+</html>

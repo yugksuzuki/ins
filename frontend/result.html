@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Resultado - Carrossel</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      background-color: #051d28;
+      color: #f9f9f9;
+    }
+
+    .carousel-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 2rem;
+      overflow: hidden;
+      width: 100%;
+      max-width: 100vw;
+      scroll-snap-type: x mandatory;
+      -webkit-overflow-scrolling: touch;
+      padding: 2rem 0;
+    }
+
+    .carousel-slide {
+      flex: 0 0 auto;
+      width: 280px;
+      transition: transform 0.4s ease, box-shadow 0.3s ease;
+      scroll-snap-align: center;
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(12px);
+      border-radius: 1rem;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+      padding: 1.5rem;
+      text-align: center;
+    }
+
+    .carousel-slide img {
+      transition: transform 0.3s ease;
+    }
+
+    .carousel-slide:hover img {
+      transform: scale(1.05);
+    }
+
+    .carousel-slide.focused {
+      transform: scale(1.1);
+      z-index: 10;
+    }
+
+    .carousel-container::-webkit-scrollbar {
+      display: none;
+    }
+    .carousel-container {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+  </style>
+</head>
+<body class="p-4 min-h-screen">
+
+  <nav class="bg-[#022c3e] text-white p-4 shadow-md">
+    <div class="max-w-6xl mx-auto flex justify-between items-center">
+   <img src="/inspmatch_backend_melhorado/public/Inspmatch (2).png" alt="Logo Inspmatch"
+     class="w-[7rem] sm:w-[8.75rem] md:w-[11rem] lg:w-[12.25rem] xl:w-[14rem]">
+
+      <a href="dashboard.html" class="hover:underline text-sm">Nova Busca</a>
+    </div>
+  </nav>
+
+  <main class="max-w-6xl mx-auto px-6 py-10">
+    <h1 class="text-4xl font-bold text-center mb-4 text-[#f9f9f9]">🎯 Top 3 Produtos Mais Similares</h1>
+    <p id="status" class="mb-6 text-center text-lg text-[#f9f9f9]">Buscando resultados...</p>
+
+    <div class="carousel-container" id="carousel">
+      <!-- Itens serão inseridos aqui -->
+    </div>
+  </main>
+
+  <script>
+  const status = document.getElementById("status");
+  const carousel = document.getElementById("carousel");
+
+  function observeFocus(elements) {
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("focused");
+        } else {
+          entry.target.classList.remove("focused");
+        }
+      });
+    }, {
+      root: carousel,
+      threshold: 0.6
+    });
+
+    elements.forEach(el => observer.observe(el));
+  }
+
+  function renderCarousel(matches) {
+    carousel.innerHTML = "";
+    if (matches.length === 0) {
+      status.innerText = "Nenhum resultado encontrado.";
+      return;
+    }
+
+    status.innerText = `Foram encontrados ${matches.length} resultados:`;
+
+    const slides = matches.slice(0, 3).map(match => {
+      const slide = document.createElement("div");
+      slide.className = "carousel-slide";
+
+      const imageUrl = `http://localhost:3001/uploads/${match.metadata.imagem || 'default.jpg'}`;
+      const title = match.metadata.indice || "Sem título";
+      const link = match.metadata.link || "#";
+
+      slide.innerHTML = `
+        <a href="${link}" target="_blank">
+          <img src="${imageUrl}" alt="${title}" 
+              class="w-full h-64 object-cover rounded-lg mb-4 shadow-md" />
+        </a>
+        <h2 class="text-lg font-semibold text-[#f9f9f9]">${title}</h2>
+        <p class="text-sm text-[#d1d5db] mt-2">🔗 Similaridade: <strong>${(match.score * 100).toFixed(2)}%</strong></p>
+      `;
+      carousel.appendChild(slide);
+      return slide;
+    });
+
+    observeFocus(slides);
+  }
+
+  async function fetchMatches() {
+    const resultData = localStorage.getItem("comparisonResults");
+    if (resultData) {
+      const matches = JSON.parse(resultData);
+      renderCarousel(matches);
+      return;
+    }
+
+    const imageData = localStorage.getItem("uploadedImage");
+    if (!imageData) {
+      status.innerText = "Nenhuma imagem foi enviada. Volte e envie uma imagem.";
+      return;
+    }
+
+    try {
+      const response = await fetch("http://localhost:3001/compare", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ image: imageData })
+      });
+
+      if (!response.ok) throw new Error("Erro ao chamar a API: " + response.status);
+      const data = await response.json();
+      if (data.matches) {
+        renderCarousel(data.matches);
+      } else {
+        status.innerText = "Resposta inválida da API.";
+      }
+    } catch (err) {
+      status.innerText = "Erro ao buscar resultados: " + err.message;
+      console.error(err);
+    }
+  }
+
+  fetchMatches();
+  </script>
+
+</body>
+</html>

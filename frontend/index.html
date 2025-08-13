@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>InspMatch | Início</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <style>
+    body {
+      background-color: #f9f9f9;
+      color: #051d28;
+    }
+    .btn-primary {
+      background-color: #022c3e;
+    }
+    .btn-primary:hover {
+      background-color: #051d28;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-center p-6 text-center">
+  <img src="/inspmatch_backend_melhorado/public/Inspmatchlogo.png" alt="Logo Inspmatch" class="w-48 sm:w-60 md:w-72 lg:w-80 xl:w-96 mx-auto mb-6">
+  <p id="subtitle" class="text-lg text-[#051d28] mb-6 opacity-0 max-w-md">Descubra produtos parecidos com base em uma imagem. Visual search com IA para e-commerce.</p>
+  <div id="menu" class="grid gap-4 w-full max-w-md opacity-0">
+    <a href="upload-image.html" class="btn-primary text-white py-3 px-6 rounded transition">📤 Enviar Imagem</a>
+    <a href="dashboard.html" class="bg-black text-white py-3 px-6 rounded hover:bg-[#051d28] transition">📊 Dashboard</a>
+    <a href="result.html" class="bg-[#051d28] text-white py-3 px-6 rounded hover:bg-[#022c3e] transition">🔍 Ver Resultados</a>
+  </div>
+
+  <script>
+    gsap.to("#logo", { duration: 1, y: -10, opacity: 1, ease: "power2.out" });
+    gsap.to("#subtitle", { duration: 1, delay: 0.8, opacity: 1, y: -10 });
+    gsap.to("#menu", { duration: 1, delay: 1.2, opacity: 1, y: -10 });
+  </script>
+</body>
+</html>
