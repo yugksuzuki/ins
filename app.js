@@ -251,7 +251,6 @@ app.use((err, _req, res, _next) => {
 
 // ... seu app.js inteiro acima
 
-/* -------- Start (somente fora da Vercel) -------- */
 const PORT = process.env.PORT || 3001;
 const HOST = '0.0.0.0';
 
@@ -260,5 +259,5 @@ if (!process.env.VERCEL) {
     console.log(`Server on http://${process.env.SHOPIFY_HOST_NAME || `localhost:${PORT}`}`)
   );
 } else {
-  module.exports = app; // Vercel importa o Express daqui
+  module.exports = app;
 }

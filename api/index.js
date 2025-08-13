@@ -1,3 +1,3 @@
-// carrega seu Express
+// api/index.js
 const app = require('../app');
-module.exports = app; // sem app.listen aqui
+module.exports = app; // nada de app.listen aqui
