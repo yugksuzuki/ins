@@ -243,16 +243,16 @@ app.use((err, _req, res, _next) => {
   res.status(err.status || 500).json({ success: false, message: err.message || 'Erro interno' });
 });
 
-/* -------- Start (local apenas) -------- */
+// ... seu app.js inteiro acima
+
+/* -------- Start (somente fora da Vercel) -------- */
 const PORT = process.env.PORT || 3001;
 const HOST = '0.0.0.0';
 
-// Se o arquivo for executado diretamente (dev/local), escuta a porta.
-// Na Vercel (serverless), ele será "require'd" por /api/index.js e NÃO chamará listen.
-if (require.main === module) {
-  app.listen(PORT, HOST, () => {
-    console.log(`Server on http://${process.env.SHOPIFY_HOST_NAME || `localhost:${PORT}`}`);
-  });
+if (!process.env.VERCEL) {
+  app.listen(PORT, HOST, () =>
+    console.log(`Server on http://${process.env.SHOPIFY_HOST_NAME || `localhost:${PORT}`}`)
+  );
 }
 
-module.exports = app; // ⬅️ necessário para Vercel
+module.exports = app; // <-- exporta o app para a função serverless da Vercel
