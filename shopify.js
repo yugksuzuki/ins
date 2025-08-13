@@ -1,8 +1,7 @@
-// scr/inspmatch_backend_melhorado/shopify.js
+// shopify.js
 const { shopifyApp } = require('@shopify/shopify-app-express');
 const { LATEST_API_VERSION } = require('@shopify/shopify-api');
-// ❌ comente/remoça o Memory
-// const { MemorySessionStorage } = require('@shopify/shopify-app-session-storage-memory');
+const { MongoClient } = require('mongodb');
 const { MongoDBSessionStorage } = require('@shopify/shopify-app-session-storage-mongodb');
 
 const {
@@ -17,13 +16,20 @@ const {
 } = process.env;
 
 const resolvedApiVersion = SHOPIFY_API_VERSION || LATEST_API_VERSION;
-console.log('🔧 Shopify API version in use:', resolvedApiVersion);
 
-// ✅ storage em Mongo (coleção: shopify_sessions)
-const sessionStorage = new MongoDBSessionStorage(MONGO_URI, {
-  databaseName: MONGO_DB,
-  collectionName: 'shopify_sessions',
-});
+let sessionStorage;
+if (MONGO_URI) {
+  // cria um cliente e reaproveita (evita confusões de versão)
+  const mongoClient = new MongoClient(MONGO_URI, { serverSelectionTimeoutMS: 10000 });
+  // importante: a lib aceita MongoClient ou URI string; usando o client evita surpresas
+  sessionStorage = new MongoDBSessionStorage(mongoClient, {
+    databaseName: MONGO_DB,
+    collectionName: 'shopify_sessions',
+  });
+} else {
+  const { MemorySessionStorage } = require('@shopify/shopify-app-session-storage-memory');
+  sessionStorage = new MemorySessionStorage();
+}
 
 const shopify = shopifyApp({
   api: {
@@ -36,7 +42,7 @@ const shopify = shopifyApp({
   },
   auth: { path: '/api/auth', callbackPath: '/api/auth/callback' },
   webhooks: { path: '/api/webhooks' },
-  sessionStorage, // ✅ agora persistente
+  sessionStorage,
 });
 
 module.exports = { shopify };
