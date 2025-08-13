@@ -49,11 +49,16 @@ app.use(express.json());
 
 /* -------- (Opcional) Conexão Mongo -------- */
 if (process.env.MONGO_URI) {
+  const opts = {
+    dbName: process.env.MONGO_DB || 'insmatch',
+    serverSelectionTimeoutMS: 5000, // não travar boot
+  };
   mongoose
-    .connect(process.env.MONGO_URI, { dbName: process.env.MONGO_DB || undefined })
+    .connect(process.env.MONGO_URI, opts)
     .then(() => console.log('✅ Mongo conectado'))
-    .catch((err) => console.error('❌ Erro ao conectar Mongo:', err.message));
+    .catch((err) => console.error('⚠️ Mongo falhou (seguindo sem DB):', err.message));
 }
+
 
 /* -------- Auth da Shopify -------- */
 const beginAuth = shopify.auth.begin();
@@ -250,9 +255,11 @@ const PORT = process.env.PORT || 3001;
 const HOST = '0.0.0.0';
 
 if (!process.env.VERCEL) {
+  const PORT = process.env.PORT || 3001;
+  const HOST = '0.0.0.0';
   app.listen(PORT, HOST, () =>
     console.log(`Server on http://${process.env.SHOPIFY_HOST_NAME || `localhost:${PORT}`}`)
   );
+} else {
+  module.exports = app;
 }
-
-module.exports = app; // <-- exporta o app para a função serverless da Vercel

@@ -1,3 +1,3 @@
-// api/index.js
+// carrega seu Express
 const app = require('../app');
-module.exports = (req, res) => app(req, res); // usa o Express como handler
+module.exports = app; // NADA de app.listen aqui
