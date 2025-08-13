@@ -51,13 +51,14 @@ app.use(express.json());
 if (process.env.MONGO_URI) {
   const opts = {
     dbName: process.env.MONGO_DB || 'insmatch',
-    serverSelectionTimeoutMS: 5000, // não travar boot
+    serverSelectionTimeoutMS: 5000, // evita travar na Vercel
   };
   mongoose
     .connect(process.env.MONGO_URI, opts)
     .then(() => console.log('✅ Mongo conectado'))
     .catch((err) => console.error('⚠️ Mongo falhou (seguindo sem DB):', err.message));
 }
+
 
 
 /* -------- Auth da Shopify -------- */
@@ -255,11 +256,9 @@ const PORT = process.env.PORT || 3001;
 const HOST = '0.0.0.0';
 
 if (!process.env.VERCEL) {
-  const PORT = process.env.PORT || 3001;
-  const HOST = '0.0.0.0';
   app.listen(PORT, HOST, () =>
     console.log(`Server on http://${process.env.SHOPIFY_HOST_NAME || `localhost:${PORT}`}`)
   );
 } else {
-  module.exports = app;
+  module.exports = app; // Vercel importa o Express daqui
 }
