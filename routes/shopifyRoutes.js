@@ -54,9 +54,9 @@ router.get('/import-products', async (req, res, next) => {
       }
     `;
 
-    const result = await gql.query({
-      data: { query, variables: { first } },
-    });
+const result = await gql.request({
+  data: { query, variables: { first } },
+});
 
     const edges = result?.body?.data?.products?.edges ?? [];
     res.json({

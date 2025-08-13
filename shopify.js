@@ -1,7 +1,8 @@
 // scr/inspmatch_backend_melhorado/shopify.js
 const { shopifyApp } = require('@shopify/shopify-app-express');
 const { LATEST_API_VERSION } = require('@shopify/shopify-api');
-// ❌ const { MemorySessionStorage } = require('@shopify/shopify-app-session-storage-memory');
+// ❌ comente/remoça o Memory
+// const { MemorySessionStorage } = require('@shopify/shopify-app-session-storage-memory');
 const { MongoDBSessionStorage } = require('@shopify/shopify-app-session-storage-mongodb');
 
 const {
@@ -12,14 +13,17 @@ const {
   SHOPIFY_HOST_NAME,
   SHOPIFY_API_VERSION,
   MONGO_URI,
-  MONGO_DB = 'insmatch', // use o mesmo nome que você quiser
+  MONGO_DB = 'insmatch',
 } = process.env;
 
 const resolvedApiVersion = SHOPIFY_API_VERSION || LATEST_API_VERSION;
 console.log('🔧 Shopify API version in use:', resolvedApiVersion);
 
-const sessionStorage = new MongoDBSessionStorage(MONGO_URI, MONGO_DB); 
-// (opcional) você pode passar um 3º parâmetro com { sessionCollectionName: 'shopify_sessions' }
+// ✅ storage em Mongo (coleção: shopify_sessions)
+const sessionStorage = new MongoDBSessionStorage(MONGO_URI, {
+  databaseName: MONGO_DB,
+  collectionName: 'shopify_sessions',
+});
 
 const shopify = shopifyApp({
   api: {
@@ -30,14 +34,9 @@ const shopify = shopifyApp({
     hostScheme:   SHOPIFY_HOST_SCHEME,
     hostName:     (SHOPIFY_HOST_NAME || '').replace(/^https?:\/\//, ''),
   },
-  auth: {
-    path: '/api/auth',
-    callbackPath: '/api/auth/callback',
-  },
-  webhooks: {
-    path: '/api/webhooks',
-  },
-  sessionStorage, // ✅ agora persistente no Atlas
+  auth: { path: '/api/auth', callbackPath: '/api/auth/callback' },
+  webhooks: { path: '/api/webhooks' },
+  sessionStorage, // ✅ agora persistente
 });
 
 module.exports = { shopify };
