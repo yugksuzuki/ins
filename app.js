@@ -69,6 +69,11 @@ app.get('/debug', (_req, res) => {
     );
 });
 
+/* ========= PING PÚBLICO ========= */
+app.get('/api/ping-public', (_req, res) => {
+  res.json({ ok: true, message: 'pong (public)', ts: Date.now() });
+});
+
 /* ========= Conexão Mongo (opcional) ========= */
 if (process.env.MONGO_URI) {
   const opts = {
@@ -166,7 +171,7 @@ app.get('/app', (req, res) => {
   const params=new URLSearchParams(location.search);
   const host=params.get('host')||'${host}';
   const apiKey='${apiKey}';
-  function log(x){try{out.textContent=typeof x==='string'?x:JSON.stringify(x,null,2);}catch{out.textContent=String(x);}}
+  function log(x){try{out.textContent=typeof x==='string'?x:JSON.stringify(x,null,2);}catch{out.textContent=String(x);} }
   if(!apiKey){log('Faltou SHOPIFY_API_KEY');return;}
   if(!host){log('Faltou host');return;}
   const AB=window['app-bridge']||(window.Shopify&&window.Shopify.AppBridge);
