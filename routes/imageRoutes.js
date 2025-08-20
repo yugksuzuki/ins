@@ -1,8 +1,8 @@
-const express = require('express');
-const router = express.Router();
+// routes/imageRoutes.js
+const router = require('express').Router();
 const imageController = require('../controllers/imageController');
 
-// Sem multer, pois estamos enviando base64
-router.post('/upload', imageController.uploadImage);
+// Montado em /api/images
+router.post('/', imageController.uploadImage);
 
 module.exports = router;
