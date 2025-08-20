@@ -1,28 +1,20 @@
-const Image = require("../models/Image");
-const clipService = require("../services/clipService");
+// controllers/imageController.js
+const Image = require('../models/Image');
+const { getImageEmbedding } = require('../services/clipService');
 
 exports.uploadImage = async (req, res) => {
   try {
     const { name, image } = req.body;
-
-    if (!name || !image) {
-      return res.status(400).json({ success: false, message: "Imagem e nome são obrigatórios." });
-    }
-
-    // Gera embedding com a imagem base64 diretamente
-    const embedding = await clipService.getImageEmbedding(image);
-
-    const newImage = new Image({
-      label: name,
-      image_url: image,
-      embedding
+    if (!image) return res.status(400).json({ error: 'Imagem obrigatória' });
+    const embedding = await getImageEmbedding(image);
+    const doc = await Image.create({
+      label: name || '',
+      image_url: '',
+      embedding,
     });
-
-    await newImage.save();
-
-    res.json({ success: true, message: "Imagem salva com sucesso." });
-  } catch (error) {
-    console.error("Erro ao salvar imagem:", error);
-    res.status(500).json({ success: false, message: "Erro interno ao salvar imagem." });
+    res.json({ ok: true, id: doc._id });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ error: 'Falha ao processar imagem' });
   }
 };
