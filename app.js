@@ -47,20 +47,26 @@ app.use(express.json({ limit: '10mb' }));
 
 /* ========= Health & Debug ========= */
 // Health público (top-level e sob /api)
-app.get('/health', (_req, res) => res.json({ ok: true, env: process.env.VERCEL ? 'vercel' : 'local', ts: Date.now() }));
-app.get('/api/health', (_req, res) => res.json({ ok: true, env: process.env.VERCEL ? 'vercel' : 'local', ts: Date.now() }));
+app.get('/health', (_req, res) =>
+  res.json({ ok: true, env: process.env.VERCEL ? 'vercel' : 'local', ts: Date.now() })
+);
+app.get('/api/health', (_req, res) =>
+  res.json({ ok: true, env: process.env.VERCEL ? 'vercel' : 'local', ts: Date.now() })
+);
 
 // Debug simples (remover depois de validar)
 app.get('/debug', (_req, res) => {
-  res.type('text/plain').send(
-    [
-      'DEBUG',
-      `VERCEL=${process.env.VERCEL ? 'yes' : 'no'}`,
-      `SHOPIFY_HOST_NAME=${process.env.SHOPIFY_HOST_NAME || '(missing)'}`,
-      `DEV_SHOP=${process.env.DEV_SHOP || '(missing)'}`,
-      `MONGO_URI=${process.env.MONGO_URI ? 'set' : 'missing'}`,
-    ].join('\n')
-  );
+  res
+    .type('text/plain')
+    .send(
+      [
+        'DEBUG',
+        `VERCEL=${process.env.VERCEL ? 'yes' : 'no'}`,
+        `SHOPIFY_HOST_NAME=${process.env.SHOPIFY_HOST_NAME || '(missing)'}`,
+        `DEV_SHOP=${process.env.DEV_SHOP || '(missing)'}`,
+        `MONGO_URI=${process.env.MONGO_URI ? 'set' : 'missing'}`,
+      ].join('\n')
+    );
 });
 
 /* ========= Conexão Mongo (opcional) ========= */
@@ -84,7 +90,9 @@ app.get('/api/auth', (req, res, next) => {
   const shop = raw && raw !== 'undefined' && raw !== 'null' ? raw : '';
 
   if (!shop) {
-    return res.status(400).send('Faltou ?shop=SUALOJA.myshopify.com (ou defina DEV_SHOP no .env)');
+    return res
+      .status(400)
+      .send('Faltou ?shop=SUALOJA.myshopify.com (ou defina DEV_SHOP no .env)');
   }
   if (!req.query.shop || req.query.shop === 'undefined' || req.query.shop === 'null') {
     return res.redirect(`/api/auth?shop=${encodeURIComponent(shop)}`);
@@ -147,7 +155,7 @@ app.get('/app', (req, res) => {
 <body>
   <h1>InspMatch – Teste de API</h1>
   <p>Loja: <strong id="shop">${shop || '(?)'}</strong></p>
-  <div style="display:flex; gap:12px; margin:16px 0;">
+  <div style="display:flex; gap:12px; margin:16px 0%;">
     <button id="btnPing">Testar /api/ping</button>
     <button id="btnImport">Importar produtos (first=10)</button>
   </div>
@@ -180,7 +188,8 @@ app.get('/app', (req, res) => {
   document.getElementById('btnImport').addEventListener('click',()=>call('/api/shopify/import-products?first=10'));
 })();
 </script>
-</body></html>`);
+</body>
+</html>`);
 });
 
 /* ========= Rotas públicas úteis ========= */
@@ -241,10 +250,7 @@ const PORT = process.env.PORT || 3001;
 const HOST = '0.0.0.0';
 
 if (!process.env.VERCEL) {
-  app.listen(PORT, HOST, () =>
-    console.log(`Local server on http://localhost:${PORT}`)
-  );
+  app.listen(PORT, HOST, () => console.log(`Local server on http://localhost:${PORT}`));
 } else {
   module.exports = app;
 }
-//foi
